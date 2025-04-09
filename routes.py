@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from models import db, Episode, Guest, Appearance
 from sqlalchemy.exc import IntegrityError
 
-routes = Blueprint('routes', __name__)
+routes = Blueprint("routes", __name__)
 
 # GET /episodes
 @routes.route("/episodes", methods=["GET"])
@@ -16,7 +16,7 @@ def get_episodes():
 
 # GET /episodes/<id>
 @routes.route("/episodes/<int:id>", methods=["GET"])
-def get_episode(id):
+def get_episode_by_id(id):
     episode = Episode.query.get(id)
     if not episode:
         return jsonify({"error": "Episode not found"}), 404
@@ -25,19 +25,17 @@ def get_episode(id):
         "id": episode.id,
         "date": episode.date,
         "number": episode.number,
-        "appearances": [
-            {
-                "id": a.id,
-                "rating": a.rating,
-                "guest_id": a.guest.id,
-                "episode_id": a.episode.id,
-                "guest": {
-                    "id": a.guest.id,
-                    "name": a.guest.name,
-                    "occupation": a.guest.occupation
-                }
-            } for a in episode.appearances
-        ]
+        "appearances": [{
+            "id": a.id,
+            "rating": a.rating,
+            "guest_id": a.guest.id,
+            "episode_id": a.episode.id,
+            "guest": {
+                "id": a.guest.id,
+                "name": a.guest.name,
+                "occupation": a.guest.occupation
+            }
+        } for a in episode.appearances]
     }), 200
 
 # GET /guests
@@ -55,11 +53,11 @@ def get_guests():
 def create_appearance():
     data = request.get_json()
 
-    rating = data.get("rating")
-    episode_id = data.get("episode_id")
-    guest_id = data.get("guest_id")
-
     try:
+        rating = int(data["rating"])
+        episode_id = int(data["episode_id"])
+        guest_id = int(data["guest_id"])
+
         new_appearance = Appearance(
             rating=rating,
             episode_id=episode_id,
@@ -86,6 +84,6 @@ def create_appearance():
             }
         }), 201
 
-    except (ValueError, IntegrityError) as e:
+    except (ValueError, IntegrityError, KeyError):
         db.session.rollback()
         return jsonify({"errors": ["validation errors"]}), 400

@@ -1,32 +1,30 @@
-from app import app
-from models import db, Guest, Episode, Appearance
+from app import create_app
+from models import db, Episode, Guest, Appearance
+
+app = create_app()
 
 with app.app_context():
-    print("🌱 Seeding database...")
-
-    db.drop_all()
-    db.create_all()
-
-    # Add guests
-    g1 = Guest(name="Michael J. Fox", occupation="actor")
-    g2 = Guest(name="Sandra Bernhard", occupation="Comedian")
-    g3 = Guest(name="Tracey Ullman", occupation="television actress")
-
-    db.session.add_all([g1, g2, g3])
+    # Create some sample guests
+    guest1 = Guest(name="Michael J. Fox", occupation="actor")
+    guest2 = Guest(name="Sandra Bernhard", occupation="comedian")
+    guest3 = Guest(name="Tracey Ullman", occupation="television actress")
+    
+    db.session.add_all([guest1, guest2, guest3])
     db.session.commit()
 
-    # Add episodes
-    e1 = Episode(date="1/11/99", number=1)
-    e2 = Episode(date="1/12/99", number=2)
-
-    db.session.add_all([e1, e2])
+    # Create some sample episodes
+    episode1 = Episode(date="1/11/99", number=1)
+    episode2 = Episode(date="1/12/99", number=2)
+    
+    db.session.add_all([episode1, episode2])
     db.session.commit()
 
-    # Add appearances
-    a1 = Appearance(rating=4, episode_id=e1.id, guest_id=g1.id)
-    a2 = Appearance(rating=5, episode_id=e2.id, guest_id=g3.id)
+    # Create some sample appearances
+    appearance1 = Appearance(rating=5, episode_id=episode1.id, guest_id=guest1.id)
+    appearance2 = Appearance(rating=4, episode_id=episode2.id, guest_id=guest2.id)
+    appearance3 = Appearance(rating=3, episode_id=episode2.id, guest_id=guest3.id)
 
-    db.session.add_all([a1, a2])
+    db.session.add_all([appearance1, appearance2, appearance3])
     db.session.commit()
 
-    print("✅ Done seeding!")
+    print("Database seeded successfully!")
